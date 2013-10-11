@@ -2,6 +2,18 @@ The MIT License (MIT)
 
 Copyright (c) 2013 Donaq LLC
 
+Pixelfence.GSM - A control Interface for Moxa OnCell GSM Modems
+http://www.donaq.com
+
+Original Author(s):  Miky Dinescu
+ 
+This software was entirely developed by Donaq LLC, and contributors,
+and it was in no way endorsed or comissioned by Moxa.
+ 
+Information about the Moxa OnCell 2100 Series Modems can be found at:
+     http://www.moxa.com/product/OnCell_G2111.htm
+     
+
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
 the Software without restriction, including without limitation the rights to
