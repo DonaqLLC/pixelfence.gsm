@@ -1,0 +1,110 @@
+﻿#region Copyright notice and license
+// The MIT License (MIT)
+// 
+// Copyright (c) 2013 Donaq LLC
+// 
+// Pixelfence.GSM - A control Interface for Moxa OnCell GSM Modems
+// http://www.donaq.com
+// 
+// Original Author(s): Miky Dinescu
+//  
+// This software was entirely developed by Donaq LLC, and contributors,
+// and it was in no way endorsed or comissioned by Moxa.
+//  
+// Information about the Moxa OnCell 2100 Series Modems can be found at:
+//   http://www.moxa.com/product/OnCell_G2111.htm
+//  
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy of
+// this software and associated documentation files (the "Software"), to deal in
+// the Software without restriction, including without limitation the rights to
+// use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+// the Software, and to permit persons to whom the Software is furnished to do so,
+// subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+// COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+// IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#endregion
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Pixelfence.GSM.Commands
+{
+    public class DateTimeModemResponse
+        : ModemResponse
+    {
+        public DateTimeModemResponse(ModemResponse responsePrototype)
+            : base(responsePrototype.Command)
+        {            
+            ResultCode = responsePrototype.ResultCode;
+            ProcessResponsePrototype(responsePrototype);            
+        }
+
+        public DateTime Time
+        {
+            get;
+            private set;
+        }
+
+        private void ProcessResponsePrototype(ModemResponse prototype)
+        {
+            if (prototype.ResultCode == CommandResult.OK)
+            {
+                for (int l = 0; l < prototype.ResponseLinesCount; l++)
+                {
+                    var respLine = prototype.GetResponseLine(l);
+                    AddResponseLine(respLine);
+
+                    if (respLine.StartsWith("+CCLK", true, System.Globalization.CultureInfo.CurrentCulture))
+                    {
+                        string[] datetime = RemoveQuotes(respLine.Substring(7)).Split(',');
+
+                        int year = 0;
+                        int month = 0;
+                        int day = 0;
+                        int hour = 0;
+                        int min = 0;
+                        int sec = 0;
+
+                        if (datetime.Length > 0)
+                        {
+                            string[] dateParts = datetime[0].Split('/');
+                            if (dateParts.Length > 0)
+                            {
+                                Int32.TryParse(dateParts[0], out year);
+                                year += 2000;
+                            }
+                            if (dateParts.Length > 1)
+                                Int32.TryParse(dateParts[1], out month);
+                            if (dateParts.Length > 2)
+                                Int32.TryParse(dateParts[2], out day);
+                        }
+
+                        if (datetime.Length > 1)
+                        {
+                            string[] timeParts = datetime[1].Split(':');
+                            if (timeParts.Length > 0)
+                                Int32.TryParse(timeParts[0], out hour);
+                            if (timeParts.Length > 1)
+                                Int32.TryParse(timeParts[1], out min);
+                            if (timeParts.Length > 2)
+                                Int32.TryParse(timeParts[2], out sec);
+                        }
+
+                        Time = new DateTime(year, month, day, hour, min, sec);                        
+                    }
+                }
+            }
+        }
+    }
+}
